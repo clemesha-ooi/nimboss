@@ -1,0 +1,36 @@
+Nimbus Provisioning API
+=======================
+
+
+Context client
+--------------
+- create context
+- generate userdata
+- check context state (for now we adapt the ContextClient from CPE demo (later maybe swap out cloud client calls with REST calls)
+
+
+ICluster interface 
+------------------
+- list of INodes with some extra data (?) (just need the implementation Cluster)
+
+
+IClusterDriver interface
+------------------------
+ - create_cluster()
+- destroy_cluster()
+- query_cluster()
+- an implementation that uses the context client
+
+Driver implementation for each EC2 and Nimbus, that implements both INodeDriver and IClusterDriver methods.
+
+
+Core module 
+-----------
+( what the caller imports)
+
+Facilities: 
+    - logging 
+    - config 
+    - errors
+    - ?
+

@@ -1,6 +1,7 @@
 import hashlib
 
 from nimboss.nimbus import NimbusClusterFile
+from nimboss.node import NimbusNodeDriver, EC2NodeDriver
 
 class Cluster(object):
     """A Cluster is a collection of Nodes.
@@ -17,15 +18,15 @@ class Cluster(object):
     def add_node(self, node):
         self.nodes[node.id] = node
 
-    def create(self, cluster_spec):
-        self.driver.create(self, cluster_spec)
+    def create_cluster(self, clusterdoc):
+        self.driver.create_cluster(self, clusterdoc)
 
     def get_uuid(self):
         return hashlib.sha1("%s:%d" % (self.id, self.driver.type)).hexdigest()
 
     def __repr__(self):
         args = (self.uuid, self.name, len(self.nodes.keys()))
-        return 'Cluster: uuid=%s, name=%s, total nodes=%d' % args
+        return "Cluster: uuid=%s, name=%s, total nodes=%d" % args
 
 
 
@@ -37,40 +38,47 @@ class ClusterDriver(object):
         - the 'ContextBroker'
     """
 
-    def __init__(self, context_broker, cluster_uuid=None, cluster_spec=None):
+    nodeDriver = None
+
+    def __init__(self, context_broker, cluster_uuid):
         self.context_broker = context_broker
-        self.cluster_spec = cluster_spec
-        self.cluster_uuid = cluster_uuid
         self.cluster = Cluster(cluster_uuid)
 
-    def create(self, cluster_spec):
-        if isinstance(cluster_spec, list):
-            nodes_specs = cluster_spec # list of AMI ids? 
-        else:
-            nimbuscf = NimbusClusterFile(cluster_spec) 
-            nodes_specs = nimbuscf.get_node_specs()
-
+    def create_cluster(self, clusterdoc):
+        nimbuscd = NimbusClusterDocument(clusterdoc) 
+        nodes_specs = nimbuscd.get_node_specs()
         new_context = self.context_broker.create_new_context(self, cluster_data)
 
         for spec in nodes_specs:
             node_data = self._create_node_data(spec, new_context)
-            node = Node(node_data) #XXX make this clean / consi
+            node = Node(node_data) #XXX a "libcloud Node" instance. 
             self.cluster.add_node(node)
 
     def _create_node_data(self, spec, new_context):
         #XXX what to do here? 
         return {'the':the, 'data':data}
 
-    def destroy(self):
+    def destroy_cluster(self):
         for (id, node) in self.cluster.nodes.iteritems():
             node.destroy()
 
-    def reboot(self)
+    def reboot_cluster(self)
         for (id, node) in self.cluster.nodes.iteritems():
             node.destroy()
 
-    def query(self, request):
-        resp = self.context_broker.query(self.cluster_uuid)
+    def query_cluster(self, request):
+        resp = self.context_broker.query(self.cluster.uuid)
         return resp
 
 
+
+class NimbusClusterDriver(ClusterDriver):
+    nodeDriver = NimbusNodeDriver
+    create_node = nodeDriver.create_node
+    destroy_node = nodeDriver.destroy_node
+
+
+class EC2ClusterDriver(ClusterDriver):
+    nodeDriver = EC2NodeDriver
+    create_node = nodeDriver.create_node
+    destroy_node = nodeDriver.destroy_node

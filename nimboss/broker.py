@@ -1,3 +1,11 @@
+"""
+This file/logic will be eventually accessed
+from another module, possible outside of the
+nimboss package.
+
+
+"""
+
 #from nimbus.rest import Connection
 from cpe_demo_code import UsefulThings
 

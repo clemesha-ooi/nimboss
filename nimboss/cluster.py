@@ -51,6 +51,8 @@ class ClusterDriver(object):
         for spec in nodes_specs:
             node_data = self._create_node_data(spec)
             new_node = self._create_node(node_data)
+        
+        return None #XXX what to return?
 
     def _create_node(self, **kwargs):
         newnode = self.nodeDriver.create_node(kwargs)

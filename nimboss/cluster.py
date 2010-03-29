@@ -13,7 +13,7 @@ class Cluster(object):
         self.cluster_type = cluster_type
         self.name = name or ''
         self.uuid = self.get_uuid()
-        self.nodes = {}
+        self.nodes = {} #XXX if the cluster (unique by 'id') exists, populate this?
 
     def add_node(self, node):
         self.nodes[node.id] = node
@@ -34,40 +34,41 @@ class ClusterDriver(object):
     """Logic to manage a Cluster.
 
     Key parts:
-        - the 'Cluster' (comprised of Nodes) 
-        - the 'ContextBroker'
+        - 'nodeDriver' attribute
+        - 'BrokerClient' instance.
     """
 
     nodeDriver = None
 
-    def __init__(self, context_broker, cluster_uuid):
-        self.context_broker = context_broker
-        self.cluster = Cluster(cluster_uuid)
+    def __init__(self, broker_client):
+        self.broker_client = broker_client
 
     def create_cluster(self, clusterdoc):
         nimbuscd = NimbusClusterDocument(clusterdoc) 
-        nodes_specs = nimbuscd.get_node_specs()
-        new_context = self.context_broker.create_new_context(self, cluster_data)
+        new_context = self.broker_client.create_context()
+        nodes_specs = nimbuscd.build_specs(new_context)
 
         for spec in nodes_specs:
-            node_data = self._create_node_data(spec, new_context)
-            node = Node(node_data) #XXX a "libcloud Node" instance. 
-            self.cluster.add_node(node)
+            node_data = self._create_node_data(spec)
+            new_node = self._create_node(node_data)
 
-    def _create_node_data(self, spec, new_context):
+    def _create_node(self, **kwargs):
+        newnode = self.nodeDriver.create_node(kwargs)
+
+    def _create_node_data(self, spec):
         #XXX what to do here? 
-        return {'the':the, 'data':data}
+        return {}
 
-    def destroy_cluster(self):
-        for (id, node) in self.cluster.nodes.iteritems():
+    def destroy_cluster(self, cluster):
+        for (id, node) in cluster.nodes.iteritems():
             node.destroy()
 
-    def reboot_cluster(self)
-        for (id, node) in self.cluster.nodes.iteritems():
+    def reboot_cluster(self, cluster):
+        for (id, node) in cluster.nodes.iteritems():
             node.destroy()
 
-    def query_cluster(self, request):
-        resp = self.context_broker.query(self.cluster.uuid)
+    def get_status(self, request):
+        resp = self.broker_client.query(self.cluster.uuid)
         return resp
 
 

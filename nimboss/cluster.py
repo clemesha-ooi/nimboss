@@ -67,8 +67,8 @@ class ClusterDriver(object):
         for (id, node) in cluster.nodes.iteritems():
             node.destroy()
 
-    def get_status(self, request):
-        resp = self.broker_client.query(self.cluster.uuid)
+    def get_status(self, context_uri):
+        resp = self.broker_client.get_status(context_uri)
         return resp
 
 

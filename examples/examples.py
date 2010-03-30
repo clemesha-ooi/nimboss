@@ -6,17 +6,23 @@ BROKER_URI = "http://mybroker.edu"
 
 
 def main():
-    key, secrect = os.environ["BROKER_KEY"], os.environ["BROKER_SECRET"]
+    key, secret = os.environ["NIMBUS_KEY"], os.environ["NIMBUS_SECRET"]
+
+    # in this example we are using the same credentials for broker and nimbus
+    # this would be different if we were launching on say, EC2
     brokerclient = BrokerClient(BROKER_URI, key, secret)
-    cdriver = NimbusClusterDriver(brokerclient)
+    cdriver = NimbusClusterDriver(key, secret, brokerclient)
 
     clusterdoc = open("/path/to/myclusterdoc.xml").read()
-    cdriver.create_cluster(clusterdoc)
-    print "Starting cluster...."
-    while 1:
-        time.sleep(5)
-        print "Cluster status => ", cdriver.get_status(BROKER_URI+"/status")
+    cluster = cdriver.create_cluster(clusterdoc) # return value is a Cluster
 
+    print "Starting cluster....", cluster
+    context_done = False
+    while not context_done:
+        time.sleep(5)
+        status = cluster.get_status()
+        print "Cluster status =>", status
+        context_done = status.complete
 
 if __name__ == "__main__":
     main()

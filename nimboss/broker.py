@@ -54,12 +54,12 @@ class BrokerClient(object):
         return json.loads(body)
 
 class ContextResource(dict):
-"""
-A context created on the broker. Used in generation of userdata.
-Needs a better name?
-"""
+    """
+    A context created on the broker. Used in generation of userdata.
+    Needs a better name?
+    """
     def __init__(self, uri, body):
-        for key, value in body:
+        for key, value in body.iteritems():
             self[key] = value
         self.uri = str(uri)
         self.broker_uri = self['broker_uri']

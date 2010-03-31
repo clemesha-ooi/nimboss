@@ -9,14 +9,12 @@ class NimbusClusterDocument(object):
     public_nic_prefix=None
     local_nic_prefix=None
 
-    def __init__(self, doc, 
-            public_nic_prefix="public", local_nic_prefix="private"):
-        
+    def __init__(self, doc, public_nic_prefix="public", local_nic_prefix="private"):
         # these are ugly. Used in nic matching process; they must
         # be in place before parse.
         self.public_nic_prefix = public_nic_prefix
         self.local_nic_prefix = local_nic_prefix
-
+        self.members = []
         self.parse(doc)
 
     def parse(self, doc):
@@ -30,6 +28,7 @@ class NimbusClusterDocument(object):
             raise ValidationError("Must have at least one 'workspace' element")
 
         self.members = [_ClusterMember(self, node) for node in members]
+        return self.members
 
     def build_specs(self, context):
         """
@@ -64,7 +63,9 @@ def create_contact_element(context):
 
 class _ClusterMember(object):
     """
-    A single 'workspace' of a cluster document. For internal use only.
+    A single 'workspace' of a cluster document. 
+
+    XXX: Instances of this object probably should be read only?
     """
 
     def __init__(self, document, element):

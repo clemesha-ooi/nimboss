@@ -1,0 +1,36 @@
+<cluster>
+ <workspace>
+   <name>master</name>
+   <image>ami-b48765dd</image>
+   <quantity>1</quantity>
+   <nic wantlogin="true">public</nic>
+   <ctx>
+     <provides>
+       <identity/>
+       <role>loadbalancer</role>
+     </provides>
+     <requires>
+       <identity/>
+       <role name="webapp" hostname="true" pubkey="true" />
+       <data name="data"><![CDATA[{'foo':'bar'}]]></data>
+     </requires>
+   </ctx>
+ </workspace>
+
+ <workspace>
+   <name>slave</name>
+   <image>ami-b48765dd</image>
+   <quantity>2</quantity>
+   <nic wantlogin="true">public</nic>
+   <ctx>
+     <provides>
+       <identity/>
+       <role>webapp</role>
+     </provides>
+     <requires>
+       <identity/>
+       <data name="data"><![CDATA[{'spam':'eggs'}]]></data>
+     </requires>
+   </ctx>
+ </workspace>
+</cluster>

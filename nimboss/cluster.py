@@ -1,5 +1,8 @@
 import hashlib
 
+from libcloud.base import NodeImage, NodeSize
+from libcloud.drivers import ec2
+
 from nimboss.nimbus import NimbusClusterDocument
 from nimboss.node import NimbusNodeDriver, EC2NodeDriver
 
@@ -65,10 +68,9 @@ class ClusterDriver(object):
         return cluster 
 
     def _create_node_data(self, spec):
-        imgs = self.node_driver.list_images() #XXX FAIL 
-        sizes = self.node_driver.list_sizes() #XXX FAIL++  
-        image = [img for img in imgs if img.id == spec.image][0]  #XXX FAIL+++
-        size = [size for size in sizes if size.id == spec.size][0]  #XXX FAIL++++
+        image = NodeImage(spec.image, spec.name, self.node_driver)
+        sz = ec2.EC2_INSTANCE_TYPES[spec.size] #XXX generalize (for Nimbus, etc)
+        size = NodeSize(sz['id'], sz['name'], sz['ram'], sz['disk'], sz['bandwidth'], sz['price'], self.node_driver)
         node_data = {
             'name':spec.name,
             'size':size,
@@ -77,9 +79,6 @@ class ClusterDriver(object):
             'maxcount':str(spec.count), 
             'userdata':spec.userdata
         }
-        print "--node-data--"*10
-        print node_data
-        print "-"*100
         return node_data
 
     def destroy_cluster(self, cluster):

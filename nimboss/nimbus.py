@@ -47,7 +47,7 @@ class NimbusClusterDocument(object):
                 member.set_active_state(True)
                 userdata = ET.tostring(ctx_tree)
                 member.set_active_state(False)
-            s = ClusterNodeSpec(member.image, member.quantity, userdata)
+            s = ClusterNodeSpec(image=member.image, count=member.quantity, userdata=userdata)
             specs.append(s)
         return specs
 
@@ -115,7 +115,9 @@ class ClusterNodeSpec(object):
     Image name (ami), node count, and userdata.
     """
 
-    def __init__(self, image, count, userdata=None):
+    def __init__(self, image=None, count='1', name='clusternode', size="m1.small", userdata=None):
         self.image = image
-        self.count = int(count)
+        self.count = count
+        self.name = name #XXX how to specify?
+        self.size = size #XXX how to specify?
         self.userdata = userdata

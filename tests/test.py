@@ -13,7 +13,7 @@ from nimboss.cluster import Cluster, ClusterDriver
 class TestClusterDocLoadParse(unittest.TestCase):
 
     def setUp(self):
-        self.clusterdoc = open("test_clusterdoc.xml").read()
+        self.clusterdoc = open("test_ec2_clusterdoc.xml").read()
         self.context_uri = "http://example.com/"
         self.context_body = {
             'broker_uri':'test_broker_uri', 
@@ -40,7 +40,7 @@ class TestClusterDocLoadParse(unittest.TestCase):
 class TestEC2Cluster(unittest.TestCase):
 
     def setUp(self):
-        self.clusterdoc = open("test_clusterdoc.xml").read()
+        self.clusterdoc = open("test_ec2_clusterdoc.xml").read()
         self.context_uri = "http://example.com/"
         self.context_body = {
             'broker_uri':'test_broker_uri', 
@@ -62,6 +62,34 @@ class TestEC2Cluster(unittest.TestCase):
 
         fake_context = ContextResource(self.context_uri, self.context_body)
         cluster.create_cluster(self.clusterdoc, context=fake_context)
+
+
+class TestNimbusCluster(unittest.TestCase):
+
+    def setUp(self):
+        self.clusterdoc = open("test_nimbus_clusterdoc.xml").read()
+        self.context_uri = "http://example.com/"
+        self.context_body = {
+            'broker_uri':'test_broker_uri', 
+            'context_id':'test_context_id', 
+            'secret':'test_secret'
+        }
+        self.broker_uri = "http://example.com/"
+        self.broker_key = "broker_key"
+        self.broker_secret = "broker_secret"
+        self.cloud_key = os.environ["NIMBUS_KEY"]
+        self.cloud_secret = os.environ["NIMBUS_SECRET"]
+
+    def test_start_cluster(self):
+        broker_client = BrokerClient(self.broker_uri, self.broker_key, self.broker_secret)  
+
+        node_driver = NimbusNodeDriver(self.cloud_key, self.cloud_secret)
+        cluster_driver = ClusterDriver(broker_client, node_driver)
+        cluster = Cluster(self.context_uri, cluster_driver)
+
+        fake_context = ContextResource(self.context_uri, self.context_body)
+        cluster.create_cluster(self.clusterdoc, context=fake_context)
+
 
 
 

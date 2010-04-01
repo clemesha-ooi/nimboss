@@ -26,13 +26,13 @@ class BrokerClient(object):
     def create_context(self):
         """
         Creates a new context with broker.
-        Returns (uri, context_info)
+        Returns a ContextResource object
         """
 
         # creating a new context is a POST to the base broker URI
         # context URI is returned in Location header and info for VMs
         # is returned in body
-        (resp, body) = self.connection.request('POST', self.broker_uri)
+        (resp, body) = self.connection.request(self.broker_uri, 'POST')
         if resp.status != httplib.CREATED:
             raise BrokerError("Failed to create new context")
         
@@ -48,7 +48,7 @@ class BrokerClient(object):
         But soon it will be a type?
         """
         
-        (resp, body) = self.connection.request('GET', str(resource))
+        (resp, body) = self.connection.request(str(resource), 'GET')
         if resp.status != httplib.OK:
             raise BrokerError("Failed to get status of context")
         return json.loads(body)
@@ -62,8 +62,8 @@ class ContextResource(dict):
         for key, value in body.iteritems():
             self[key] = value
         self.uri = str(uri)
-        self.broker_uri = self['broker_uri']
-        self.context_id = self['context_id']
+        self.broker_uri = self['brokerUri']
+        self.context_id = self['contextId']
         self.secret = self['secret']
     def __str__(self):
         return self.uri

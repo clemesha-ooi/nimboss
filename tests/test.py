@@ -68,30 +68,22 @@ class TestNimbusCluster(unittest.TestCase):
 
     def setUp(self):
         self.clusterdoc = open("test_nimbus_clusterdoc.xml").read()
-        self.context_uri = "http://example.com/"
-        self.context_body = {
-            'broker_uri':'test_broker_uri', 
-            'context_id':'test_context_id', 
-            'secret':'test_secret'
-        }
-        self.broker_uri = "http://example.com/"
-        self.broker_key = "broker_key"
-        self.broker_secret = "broker_secret"
         self.cloud_key = os.environ["NIMBUS_KEY"]
         self.cloud_secret = os.environ["NIMBUS_SECRET"]
+        self.broker_uri = "https://nimbus.ci.uchicago.edu:8888/ContextBroker/ctx/"
+        self.broker_key = self.cloud_key
+        self.broker_secret = self.cloud_secret
 
     def test_start_cluster(self):
         broker_client = BrokerClient(self.broker_uri, self.broker_key, self.broker_secret)  
 
         node_driver = NimbusNodeDriver(self.cloud_key, self.cloud_secret)
         cluster_driver = ClusterDriver(broker_client, node_driver)
-        cluster = Cluster(self.context_uri, cluster_driver)
+        cluster = Cluster(self.broker_uri, cluster_driver)
 
-        fake_context = ContextResource(self.context_uri, self.context_body)
-        cluster.create_cluster(self.clusterdoc, context=fake_context)
-
-
-
+        context = broker_client.create_context()
+        print context
+        cluster.create_cluster(self.clusterdoc, context=context)
 
 if __name__ == '__main__':
-    unittest.main()
+    unittest.main(argv=sys.argv)

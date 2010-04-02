@@ -67,3 +67,12 @@ class ContextResource(dict):
         self.secret = self['secret']
     def __str__(self):
         return self.uri
+
+class BrokerError(Exception):
+    """
+    Error response from Context Broker.
+    """
+    def __init(self, reason):
+        self.reason = reason
+        Exception.__init__(self, reason)
+

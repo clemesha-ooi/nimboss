@@ -79,11 +79,10 @@ class TestNimbusCluster(unittest.TestCase):
 
         node_driver = NimbusNodeDriver(self.cloud_key, self.cloud_secret)
         cluster_driver = ClusterDriver(broker_client, node_driver)
-        cluster = Cluster(self.broker_uri, cluster_driver)
 
         context = broker_client.create_context()
         print context
-        cluster.create_cluster(self.clusterdoc, context=context)
+        cluster = cluster_driver.create_cluster(self.clusterdoc, context=context, keyname="default")
 
 if __name__ == '__main__':
     unittest.main(argv=sys.argv)

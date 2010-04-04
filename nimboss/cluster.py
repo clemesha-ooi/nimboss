@@ -52,7 +52,16 @@ class ClusterDriver(object):
         self.broker_client = broker_client
         self.node_driver = node_driver
 
-    def create_cluster(self, clusterdoc, context=None):
+    def create_cluster(self, clusterdoc, context=None, **kwargs):
+        """Create a new cluster of nodes
+
+        @keyword    keyname: The name of the key pair
+        @type       keyname: C{str}
+
+        @keyword    securitygroup: Name of security group
+        @type       securitygroup: C{str}
+        """
+        
         nimbuscd = NimbusClusterDocument(clusterdoc) 
         if context is None:
             context = self.broker_client.create_context()
@@ -61,13 +70,13 @@ class ClusterDriver(object):
         cluster = Cluster(id=context.uri, driver=self)
 
         for spec in nodes_specs:
-            node_data = self._create_node_data(spec)
+            node_data = self._create_node_data(spec, **kwargs)
             new_node = self.node_driver.create_node(**node_data)
             cluster.add_node(new_node)
         
         return cluster 
 
-    def _create_node_data(self, spec):
+    def _create_node_data(self, spec, **kwargs):
         image = NodeImage(spec.image, spec.name, self.node_driver)
         sz = ec2.EC2_INSTANCE_TYPES[spec.size] #XXX generalize (for Nimbus, etc)
         size = NodeSize(sz['id'], sz['name'], sz['ram'], sz['disk'], sz['bandwidth'], sz['price'], self.node_driver)
@@ -79,6 +88,7 @@ class ClusterDriver(object):
             'maxcount':str(spec.count), 
             'userdata':spec.userdata
         }
+        node_data.update(kwargs)
         return node_data
 
     def destroy_cluster(self, cluster):

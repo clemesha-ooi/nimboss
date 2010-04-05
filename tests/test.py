@@ -4,6 +4,7 @@ sys.path.insert(0, os.path.abspath("../"))
 
 import unittest
 
+import nimboss.nimbus
 from nimboss.nimbus import NimbusClusterDocument
 from nimboss.broker import ContextResource, BrokerClient
 from nimboss.node import NimbusNodeDriver, EC2NodeDriver
@@ -16,8 +17,8 @@ class TestClusterDocLoadParse(unittest.TestCase):
         self.clusterdoc = open("test_ec2_clusterdoc.xml").read()
         self.context_uri = "http://example.com/"
         self.context_body = {
-            'broker_uri':'test_broker_uri', 
-            'context_id':'test_context_id', 
+            'brokerUri':'test_broker_uri', 
+            'contextId':'test_context_id', 
             'secret':'test_secret'
         }
 
@@ -35,6 +36,16 @@ class TestClusterDocLoadParse(unittest.TestCase):
         self.assertEqual(specs[0].count, 1)
         self.assertEqual(specs[1].count, 2)
         self.assertEqual(specs[0].image, "ami-b48765dd")
+        for spec in specs:
+            print "spec:"
+            print spec.userdata
+
+    def test_create_contact_element(self):
+        ctx = ContextResource(self.context_uri, self.context_body)
+        contact = nimboss.nimbus.create_contact_element(ctx)
+        #assure that all elements have a namespace prefix
+        for child in contact.getiterator():
+            self.assertTrue(str(child.tag)[0] == '{')
 
 
 class TestEC2Cluster(unittest.TestCase):

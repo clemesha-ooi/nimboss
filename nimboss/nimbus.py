@@ -1,5 +1,8 @@
 import xml.etree.ElementTree as ET
 
+NS_CTXBROKER = "http://www.globus.org/2008/12/nimbus"
+NS_CTXDESC = NS_CTXBROKER + "/ctxdescription"
+
 class NimbusClusterDocument(object):
     """
     Given a Nimbus cluster document, parse enough
@@ -28,7 +31,13 @@ class NimbusClusterDocument(object):
             raise ValidationError("Must have at least one 'workspace' element")
 
         self.members = [_ClusterMember(self, node) for node in members]
-        return self.members
+
+        # we must namespace-prefix all elements, to stay friendly with how
+        # the ctx agent parses. It would be more efficent to do this and the
+        # above parsing activities in one pass..
+        for child in self.tree.getiterator():
+            if str(child.tag)[0] != '{':
+                child.tag = _ctx_qname(child.tag)
 
     def build_specs(self, context):
         """
@@ -55,11 +64,14 @@ def create_contact_element(context):
     """
     Produces a <contact> element for a Context resource
     """
-    elem = ET.Element('contact')
-    ET.SubElement(elem, 'brokerURL').text = context.broker_uri
-    ET.SubElement(elem, 'contextID').text = context.context_id
-    ET.SubElement(elem, 'secret').text = context.secret
+    elem = ET.Element(_ctx_qname('contact'))
+    ET.SubElement(elem, _ctx_qname('brokerURL')).text = context.broker_uri
+    ET.SubElement(elem, _ctx_qname('contextID')).text = context.context_id
+    ET.SubElement(elem, _ctx_qname('secret')).text = context.secret
     return elem
+
+def _ctx_qname(tag):
+    return ET.QName(NS_CTXDESC, tag)
 
 class _ClusterMember(object):
     """

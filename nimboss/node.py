@@ -64,7 +64,7 @@ class NimbusConnection(EC2Connection):
         # Encode data if necessary
         if data != '':
             data = self.encode_data(data)
-            url = '?'.join((action, urllib.urlencode(params)))
+        url = '?'.join((action, urllib.urlencode(params)))
         # Removed terrible hack...this a less-bad hack that doesn't execute a
         # request twice, but it's still a hack.
         self.connect()
@@ -78,3 +78,9 @@ class NimbusNodeDriver(EC2NodeDriver):
 
     connectionCls = NimbusConnection
     name = "Nimbus"
+
+    def _fixxpath(self, xpath):
+        # Nimbus return types don't include namespace declaration in every
+        # tag, unlike EC2. So we override this method to make xpath queries
+        # just pass through instead of being ns-prefixed.
+        return xpath

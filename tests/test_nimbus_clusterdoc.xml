@@ -1,7 +1,7 @@
 <cluster>
  <workspace>
    <name>master</name>
-   <image>hello-cloud</image>
+   <image>nginx-balanced</image>
    <quantity>1</quantity>
    <nic wantlogin="true">public</nic>
    <ctx>
@@ -19,8 +19,7 @@
 
  <workspace>
    <name>slave</name>
-   <image>hello-cloud</image>
-   <quantity>2</quantity>
+   <image>nginx-balanced</image>
    <nic wantlogin="true">public</nic>
    <ctx>
      <provides>

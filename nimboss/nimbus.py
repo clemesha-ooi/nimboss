@@ -56,7 +56,8 @@ class NimbusClusterDocument(object):
                 member.set_active_state(True)
                 userdata = ET.tostring(ctx_tree)
                 member.set_active_state(False)
-            s = ClusterNodeSpec(image=member.image, count=member.quantity, userdata=userdata)
+            s = ClusterNodeSpec(image=member.image, count=member.quantity,
+                    name=member.name, userdata=userdata)
             specs.append(s)
         return specs
 
@@ -90,6 +91,10 @@ class _ClusterMember(object):
             self.quantity = int(quantity.text)
         except ValueError:
             raise ValidationError("Workspace quantity must be an integer")
+        nameElem = element.find('name')
+        if nameElem is not None and nameElem.text:
+            self.name = nameElem.text.strip()
+        else: self.name = ''
 
         #TODO validate NICs/doctor ctx
 
@@ -127,7 +132,7 @@ class ClusterNodeSpec(object):
     Image name (ami), node count, and userdata.
     """
 
-    def __init__(self, image=None, count='1', name='clusternode', size="m1.small", userdata=None):
+    def __init__(self, image=None, count='1', name=None, size="m1.small", userdata=None):
         self.image = image
         self.count = count
         self.name = name #XXX how to specify?

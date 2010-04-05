@@ -1,5 +1,6 @@
 import os
 import sys
+import time
 sys.path.insert(0, os.path.abspath("../"))
 
 import unittest
@@ -92,8 +93,22 @@ class TestNimbusCluster(unittest.TestCase):
         cluster_driver = ClusterDriver(broker_client, node_driver)
 
         context = broker_client.create_context()
-        print context
+        print "Context uri:", context
         cluster = cluster_driver.create_cluster(self.clusterdoc, context=context, keyname="default")
+        print "Cluster: ", cluster
+        for node in cluster.nodes.values():
+            print "Node %s (%s)" % (node.id, node.name)
+
+        all_done = False
+        while not all_done:
+            time.sleep(5)
+            status = cluster.get_status()
+            all_done = (status['isComplete'] and
+                    (status['allOk'] or status['errorOccurred']))
+
+        print "Context complete!"
+        print "Status: ", status
+        cluster.destroy()
 
 if __name__ == '__main__':
     unittest.main(argv=sys.argv)

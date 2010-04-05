@@ -25,9 +25,6 @@ class Cluster(object):
         else:
             self.nodes[node.uuid] = node
 
-    def create_cluster(self, clusterdoc, context=None):
-        self.driver.create_cluster(clusterdoc, context)
-
     def get_uuid(self):
         return hashlib.sha1("%s:%d" % (self.id, self.driver.node_driver.type)).hexdigest() #FIXME
     
@@ -35,6 +32,9 @@ class Cluster(object):
         # this doesn't feel right..
         resp = self.driver.broker_client.get_status(self.id)
         return resp
+
+    def destroy(self):
+        self.driver.destroy_cluster(self)
 
     def __repr__(self):
         args = (self.uuid, self.name, len(self.nodes.keys()))

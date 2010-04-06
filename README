@@ -29,39 +29,24 @@ To run tests:
 
 
 
-Architecture and Notes
-======================
+Layout of Nimboss
+=================
 
+node.py
+-------
+Node specific connection and management.
 
-Context client
---------------
-- create context
-- generate userdata
-- check context state (for now we adapt the ContextClient from CPE demo (later maybe swap out cloud client calls with REST calls)
+cluster.py
+----------
+Cluster management and driver implementation for both EC2 and Nimbus.
+Support for Cluster creation, termination, and status querying.
 
+broker.py
+---------
+Communication with the Nimbus Context Broker.
+Support for creating Context and querying Cluster status.
 
-ICluster interface 
-------------------
-- list of INodes with some extra data (?) (just need the implementation Cluster)
-
-
-IClusterDriver interface
-------------------------
- - create_cluster()
-- destroy_cluster()
-- query_cluster()
-- an implementation that uses the context client
-
-Driver implementation for each EC2 and Nimbus, that implements both INodeDriver and IClusterDriver methods.
-
-
-Core module 
------------
-( what the caller imports)
-
-Facilities: 
-    - logging 
-    - config 
-    - errors
-    - ?
+nimbus.py
+---------
+Nimbus 'Cluster document' and 'Cluster spec' utitlities.
 

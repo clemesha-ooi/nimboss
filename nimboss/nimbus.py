@@ -4,9 +4,9 @@ NS_CTXBROKER = "http://www.globus.org/2008/12/nimbus"
 NS_CTXDESC = NS_CTXBROKER + "/ctxdescription"
 
 class NimbusClusterDocument(object):
-    """
-    Given a Nimbus cluster document, parse enough
-    to access all parameters for a Node instance.
+    """Parse a Nimbus 'cluster document' to
+    obtain all need information to create all
+    Nodes for a given Cluster.  
     """
 
     public_nic_prefix=None
@@ -21,6 +21,9 @@ class NimbusClusterDocument(object):
         self.parse(doc)
 
     def parse(self, doc):
+        """The XML parsing logic.
+
+        """
         self.tree = ET.fromstring(doc)
 
         if self.tree.tag != 'cluster':

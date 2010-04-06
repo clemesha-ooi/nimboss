@@ -7,7 +7,11 @@ from nimboss.nimbus import NimbusClusterDocument
 from nimboss.node import NimbusNodeDriver, EC2NodeDriver
 
 class Cluster(object):
-    """A Cluster is a collection of Nodes.
+    """A collection of Nodes.
+
+    All Nodes of a given Cluster instance
+    are defined in a given "cluster document" that
+    contains Node details, and inter-Node relationships.
     """
 
     def __init__(self, id, driver, cluster_type=None, name=None):
@@ -19,6 +23,12 @@ class Cluster(object):
         self.nodes = {} 
 
     def add_node(self, node):
+        """Add a Node to this Cluster's "nodes" attribute.
+
+        The "nodes" attribute exists only for the lifetime
+        of the Cluster instance, and is not persisted in 
+        any way.
+        """
         if isinstance(node, (list, tuple)):
             for n in node:
                 self.nodes[n.uuid] = n
@@ -26,14 +36,19 @@ class Cluster(object):
             self.nodes[node.uuid] = node
 
     def get_uuid(self):
+        """Unique id, created by hashing Cluster id, and the Node Driver type.
+        """
         return hashlib.sha1("%s:%d" % (self.id, self.driver.node_driver.type)).hexdigest() #FIXME
     
     def get_status(self):
-        # this doesn't feel right..
+        """Cluster status, as return by the Context Broker.
+        """
         resp = self.driver.broker_client.get_status(self.id)
         return resp
 
     def destroy(self):
+        """Terminate all Nodes in this Cluster.
+        """
         self.driver.destroy_cluster(self)
 
     def __repr__(self):
@@ -42,10 +57,10 @@ class Cluster(object):
 
 
 class ClusterDriver(object):
-    """Logic to manage a Cluster.
+    """Logic to manage resource that make up a Cluster.
 
-    Key parts:
-        - 'BrokerClient' instance.
+    Contains references to the Broker Client,
+    and the Node Driver.
     """
 
     def __init__(self, broker_client, node_driver):
@@ -77,6 +92,8 @@ class ClusterDriver(object):
         return cluster 
 
     def _create_node_data(self, spec, **kwargs):
+        """Utility to get correct form of data to create a Node.
+        """
         image = NodeImage(spec.image, spec.name, self.node_driver)
         sz = ec2.EC2_INSTANCE_TYPES[spec.size] #XXX generalize (for Nimbus, etc)
         size = NodeSize(sz['id'], sz['name'], sz['ram'], sz['disk'], sz['bandwidth'], sz['price'], self.node_driver)
@@ -92,10 +109,16 @@ class ClusterDriver(object):
         return node_data
 
     def destroy_cluster(self, cluster):
+        """Terminate all Nodes from this Cluster.
+
+        """
         for (id, node) in cluster.nodes.iteritems():
             node.destroy()
 
     def reboot_cluster(self, cluster):
+        """Reboot all Nodes from this Cluster.
+
+        """
         for (id, node) in cluster.nodes.iteritems():
             node.destroy()
 

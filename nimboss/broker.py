@@ -1,22 +1,17 @@
-"""
-This file/logic will be eventually accessed
-from another module, possible outside of the
-nimboss package.
-
-
-"""
-
-# using httplib2 for now even though it isn't in standard library.
-# we can change this later if needed.
-import httplib2 
+import httplib2 # Not in standard library, change later if needed.
 import httplib # for status codes
 
-try: import json
-except: import simplejson as json
+try: 
+    import json
+except: 
+    import simplejson as json
 
 Connection = httplib2.Http
 
 class BrokerClient(object):
+    """Broker connection management and utility functionality.
+
+    """
 
     def __init__(self, broker_uri, key, secret):
         self.broker_uri = broker_uri
@@ -24,9 +19,9 @@ class BrokerClient(object):
         self.connection.add_credentials(key, secret)
 
     def create_context(self):
-        """
-        Creates a new context with broker.
-        Returns a ContextResource object
+        """Create a new context with Broker.
+
+        @return: instance of type C{ContextResource}
         """
 
         # creating a new context is a POST to the base broker URI
@@ -42,8 +37,8 @@ class BrokerClient(object):
         return ContextResource(location, body)
 
     def get_status(self, resource):
-        """
-        Checks the status of a context resource.
+        """Status of a Context resource.
+
         Returns a dict full of status information. 
         But soon it will be a type?
         """
@@ -54,8 +49,9 @@ class BrokerClient(object):
         return json.loads(body)
 
 class ContextResource(dict):
-    """
-    A context created on the broker. Used in generation of userdata.
+    """Context created on the broker. 
+
+    Used in generation of userdata.
     Needs a better name?
     """
     def __init__(self, uri, body):
@@ -69,8 +65,7 @@ class ContextResource(dict):
         return self.uri
 
 class BrokerError(Exception):
-    """
-    Error response from Context Broker.
+    """Error response from Context Broker.
     """
     def __init(self, reason):
         self.reason = reason

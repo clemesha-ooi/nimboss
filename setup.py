@@ -24,7 +24,7 @@ try:
     from setuptools import setup, find_packages
     setupdict['packages'] = find_packages()
     setupdict['test_suite'] = 'nimboss.test'
-    setupdict['install_requires'] = ['apache-libcloud']
+    setupdict['install_requires'] = ['apache-libcloud', 'httplib2']
     setupdict['include_package_data'] = True
     setup(**setupdict)
 

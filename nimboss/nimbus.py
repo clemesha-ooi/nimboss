@@ -34,6 +34,12 @@ class NimbusClusterDocument(object):
             raise ValidationError("Must have at least one 'workspace' element")
 
         self.members = [_ClusterMember(self, node) for node in members]
+        
+        self.needs_contextualization = False
+        for member in self.members:
+            if member.needs_contextualization:
+                self.needs_contextualization = True
+                break
 
         # we must namespace-prefix all elements, to stay friendly with how
         # the ctx agent parses. It would be more efficent to do this and the
@@ -48,9 +54,10 @@ class NimbusClusterDocument(object):
         specified context.
         """
 
-        ctx_tree = ET.Element('NIMBUS_CTX')
-        ctx_tree.append(create_contact_element(context))
-        ctx_tree.append(self.tree)
+        if context:
+            ctx_tree = ET.Element('NIMBUS_CTX')
+            ctx_tree.append(create_contact_element(context))
+            ctx_tree.append(self.tree)
 
         specs = []
         for member in self.members:

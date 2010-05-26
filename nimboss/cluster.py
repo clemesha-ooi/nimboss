@@ -63,7 +63,7 @@ class ClusterDriver(object):
     and the Node Driver.
     """
 
-    def __init__(self, broker_client, node_driver):
+    def __init__(self, broker_client, node_driver=None):
         self.broker_client = broker_client
         self.node_driver = node_driver
 
@@ -77,19 +77,30 @@ class ClusterDriver(object):
         @type       securitygroup: C{str}
         """
         
-        nimbuscd = NimbusClusterDocument(clusterdoc) 
+        if isinstance(clusterdoc, str):
+            nimbuscd = NimbusClusterDocument(clusterdoc)
+        
         if context is None:
             context = self.broker_client.create_context()
-        nodes_specs = nimbuscd.build_specs(context)
+        nodes_specs = clusterdoc.build_specs(context)
 
-        cluster = Cluster(id=context.uri, driver=self)
+        cluster = self.new_bare_cluster(id=context.uri)
 
         for spec in nodes_specs:
-            node_data = self._create_node_data(spec, **kwargs)
-            new_node = self.node_driver.create_node(**node_data)
-            cluster.add_node(new_node)
+            cluster.add_node(launch_node_spec(spec))
         
-        return cluster 
+        return cluster
+
+    def new_bare_cluster(self, id):
+        return Cluster(id, driver=self)
+
+    def launch_node_spec(self, spec, driver):
+        """Launches a single node group.
+
+        Returns a single Node or a list of Nodes.
+        """
+        node_data = self._create_node_data(spec, **kwargs)
+        return driver.create_node(**node_data)
 
     def _create_node_data(self, spec, **kwargs):
         """Utility to get correct form of data to create a Node.

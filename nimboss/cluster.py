@@ -38,7 +38,7 @@ class Cluster(object):
     def get_uuid(self):
         """Unique id, created by hashing Cluster id, and the Node Driver type.
         """
-        return hashlib.sha1("%s:%d" % (self.id, self.driver.node_driver.type)).hexdigest() #FIXME
+        return hashlib.sha1("%s" % (self.id)).hexdigest() #FIXME
     
     def get_status(self):
         """Cluster status, as return by the Context Broker.
@@ -87,14 +87,14 @@ class ClusterDriver(object):
         cluster = self.new_bare_cluster(id=context.uri)
 
         for spec in nodes_specs:
-            cluster.add_node(launch_node_spec(spec))
+            cluster.add_node(launch_node_spec(spec, **kwargs))
         
         return cluster
 
     def new_bare_cluster(self, id):
         return Cluster(id, driver=self)
 
-    def launch_node_spec(self, spec, driver):
+    def launch_node_spec(self, spec, driver, **kwargs):
         """Launches a single node group.
 
         Returns a single Node or a list of Nodes.

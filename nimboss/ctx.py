@@ -8,7 +8,7 @@ except:
 
 Connection = httplib2.Http
 
-class BrokerClient(object):
+class ContextClient(object):
     """Broker connection management and utility functionality.
 
     """

@@ -112,9 +112,9 @@ class ClusterDriver(object):
             'name':spec.name,
             'size':size,
             'image':image, 
-            'mincount':str(spec.count), 
-            'maxcount':str(spec.count), 
-            'userdata':spec.userdata
+            'ex_mincount':str(spec.count), 
+            'ex_maxcount':str(spec.count), 
+            'ex_userdata':spec.userdata
         }
         node_data.update(kwargs)
         return node_data

@@ -39,14 +39,17 @@ class ContextClient(object):
     def get_status(self, resource):
         """Status of a Context resource.
 
-        Returns a dict full of status information. 
-        But soon it will be a type?
+        Returns a ContextStatus object
         """
         
         (resp, body) = self.connection.request(str(resource), 'GET')
         if resp.status != httplib.OK:
             raise BrokerError("Failed to get status of context")
-        return json.loads(body)
+        try:
+            response = json.loads(body)
+            return _status_from_response(response)
+        except:
+            raise BrokerError("Failed to parse status response from broker")
 
 class ContextResource(dict):
     """Context created on the broker. 
@@ -58,11 +61,68 @@ class ContextResource(dict):
         for key, value in body.iteritems():
             self[key] = value
         self.uri = str(uri)
+        self['uri'] = self.uri
         self.broker_uri = self['brokerUri']
         self.context_id = self['contextId']
         self.secret = self['secret']
     def __str__(self):
         return self.uri
+
+def _status_from_response(response):
+    res_nodes = response['nodes']
+    nodes = []
+    for n in res_nodes:
+        ids = _identities_from_response_node(n)
+        ok_occurred = n.get('okOccurred', False)
+        error_occurred = n.get('errorOccurred', False)
+        error_code = n.get('errorCode')
+        error_message = n.get('errorMessage', None)
+        node = ContextNode(ids, ok_occurred, error_occurred, error_code,
+                error_message)
+        nodes.append(node)
+
+    complete = response.get('isComplete', False)
+    error = response.get('errorOccurred', False)
+    expected_count = response['expectedNodeCount']
+    return ContextStatus(nodes, expected_count, complete, error)
+
+def _identities_from_response_node(resp_node):
+    ids = resp_node['identities']
+    identities = []
+    for id in ids:
+        identity = ContextNodeIdentity(id['iface'], id['ip'], id['hostname'],
+            id['pubkey']) 
+        identities.append(identity)
+        return identities
+
+class ContextStatus(object):
+    """Status information about a context
+    """
+    def __init__(self, nodes, expected_count, complete=False, error=False):
+        self.nodes = nodes
+        self.expected_count = expected_count
+        self.complete = complete
+        self.error = error
+
+class ContextNode(object):
+    """A single contextualization node, with one or more identities.
+    """
+    def __init__(self, identities, ok_occurred=False, error_occurred=False,
+            error_code=None, error_message=None):
+        self.identities = identities
+        self.ok_occurred = ok_occurred
+        self.error_occurred = error_occurred
+        self.error_code = error_code
+        self.error_message = error_message
+
+class ContextNodeIdentity(object):
+    """A single network identity for a node.
+    """
+    def __init__(self, interface, ip, hostname, pubkey):
+        self.interface = interface
+        self.ip = ip
+        self.hostname = hostname
+        self.pubkey = pubkey
 
 class BrokerError(Exception):
     """Error response from Context Broker.

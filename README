@@ -9,12 +9,16 @@ Install
 Create a virtualenv:
     $ virtualenv nimboss_env
 
-Install dependancies:
+Install dependencies:
     $ pip -E nimboss_env install zope.interface httplib2 simplejson
     $ cd nimboss_env
     $ git clone git://github.com/apache/libcloud.git
     $ cd libcloud; python setup.py install; cd ..
+
+Install Nimboss:
     $ git clone git@github.com:clemesha-ooi/nimboss.git # Read+Write, or use "git://...".
+    $ cd nimboss
+    $ python setup.py install
 
 
 Tests

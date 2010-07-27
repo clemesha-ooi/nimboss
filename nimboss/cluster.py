@@ -63,7 +63,7 @@ class ClusterDriver(object):
     and the Node Driver.
     """
 
-    def __init__(self, broker_client, node_driver=None):
+    def __init__(self, broker_client=None, node_driver=None):
         self.broker_client = broker_client
         self.node_driver = node_driver
 

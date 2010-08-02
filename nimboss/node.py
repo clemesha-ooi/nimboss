@@ -1,7 +1,3 @@
-import urllib
-import base64
-import hmac
-from hashlib import sha256
 from libcloud.drivers.ec2 import EC2Connection, EC2NodeDriver
 
 class NimbusConnection(EC2Connection):

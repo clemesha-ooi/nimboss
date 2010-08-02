@@ -142,9 +142,11 @@ class ClusterNodeSpec(object):
     Image name (ami), node count, and userdata.
     """
 
-    def __init__(self, image=None, count='1', name=None, size="m1.small", userdata=None):
+    def __init__(self, image=None, count='1', name=None, size="m1.small", 
+            userdata=None, keyname=None):
         self.image = image
         self.count = count
         self.name = name #XXX how to specify?
         self.size = size #XXX how to specify?
         self.userdata = userdata
+        self.keyname = keyname

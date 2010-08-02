@@ -114,10 +114,13 @@ class ClusterDriver(object):
             'image':image, 
             'ex_mincount':str(spec.count), 
             'ex_maxcount':str(spec.count), 
-            'ex_userdata':spec.userdata
+            'ex_userdata':spec.userdata,
+            'ex_keyname':spec.keyname,
         }
+        
         node_data.update(kwargs)
-        return node_data
+        # libcloud doesn't like args with None values
+        return dict(pair for pair in node_data.iteritems() if pair[1] is not None)
 
     def destroy_cluster(self, cluster):
         """Terminate all Nodes from this Cluster.

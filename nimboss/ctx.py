@@ -93,7 +93,7 @@ def _identities_from_response_node(resp_node):
         identity = ContextNodeIdentity(id['iface'], id['ip'], id['hostname'],
             id['pubkey']) 
         identities.append(identity)
-        return identities
+    return identities
 
 class ContextStatus(object):
     """Status information about a context

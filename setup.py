@@ -1,8 +1,10 @@
 #!/usr/bin/env python
 
+from nimboss import version
+
 setupdict = {
     'name' : 'nimboss',
-    'version' : '0.2.0',
+    'version' : version,
     'description' : 'Nimbus cloud client API',
     'url': 'http://github.com/clemesha-ooi/nimboss',
     'download_url' : 'http://ooici.net/packages',

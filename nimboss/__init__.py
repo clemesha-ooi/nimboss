@@ -17,7 +17,7 @@ def _prerelease():
     """
     (code, current_head) = commands.getstatusoutput("git rev-parse HEAD")
     if code != 0:
-        raise Exception("cannot determine Nimboss version, git failed")
+        return "unknown-prelease"
     
     (code, output) = commands.getstatusoutput("git log --abbrev-commit --pretty=format:'%h' | wc -l")
     if code != 0:
